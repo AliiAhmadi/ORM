@@ -4,14 +4,25 @@ namespace Orm\Database;
 
 use Orm\Exceptions\DatabaseConnectionException;
 use Orm\Contracts\DatabaseConnectionInterface;
+use Orm\Exceptions\IncorrectConfigInfoException;
 
 class PDODatabaseConnection implements DatabaseConnectionInterface
 {
+    public const REQUIRED_CONFIG_KEYS = [
+        "driver",
+        "database",
+        "host",
+        "db_user",
+        "db_password"
+    ];
     protected \PDO|null $connection;
     protected array $config;
 
     public function __construct(array $config)
     {
+        if (!self::IsValidConfig($config)) {
+            throw new IncorrectConfigInfoException();
+        }
         $this->config = $config;
     }
     public function connect(): PDODatabaseConnection
@@ -42,5 +53,15 @@ class PDODatabaseConnection implements DatabaseConnectionInterface
             ";charset=utf8";
 
         return $dsn;
+    }
+
+    private static function IsValidConfig(array $config): bool
+    {
+        $intersectResult = array_intersect(self::REQUIRED_CONFIG_KEYS, array_keys($config));
+
+        if (count($intersectResult) === count(self::REQUIRED_CONFIG_KEYS)) {
+            return true;
+        }
+        return false;
     }
 }
