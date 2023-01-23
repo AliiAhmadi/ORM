@@ -9,27 +9,44 @@ use Orm\Database\PDOQueryBuilder;
 
 class PDOQueryBuilderTest extends TestCase
 {
-    public function testItCanCreateDataAndInsertThem()
+    private $queryBuilder;
+
+    public function setUp(): void
     {
         $pdoConnection = new PDODatabaseConnection($this->getConfig());
 
-        $queryBuilder = new PDOQueryBuilder($pdoConnection->connect());
+        $this->queryBuilder = new PDOQueryBuilder($pdoConnection->connect());
 
+        parent::setUp();
+    }
+    public function testItCanCreateDataAndInsertThem()
+    {
         $data = [
             "full_name" => "Ali Ahmadi",
             "email" => "aliahmadi@gmail.com",
             "github_profile" => "https://github/aliiahmadi"
         ];
 
-        $result = $queryBuilder->table("users")->create($data);
+        $result = $this->queryBuilder->table("users")->create($data);
 
         $this->assertIsInt($result);
 
         $this->assertGreaterThan(0, $result);
     }
 
+
     private function getConfig()
     {
         return Config::get("database", "pdo_testing");
+    }
+
+    public function testItCanUpdateDataInDatabase()
+    {
+        $result = $this->queryBuilder
+            ->table("users")
+            ->where("id", 3)
+            ->update(["email" => "test@gmail.com", "full_name" => "ali hastam :)"]);
+
+        $this->assertGreaterThan(0, $result);
     }
 }

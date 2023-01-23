@@ -8,6 +8,8 @@ class PDOQueryBuilder
 {
     protected string $table;
     protected \PDO|null $connection;
+    protected array $conditions;
+    protected array $conditionValues;
 
     public function __construct(PDODatabaseConnection $connection)
     {
@@ -36,5 +38,35 @@ class PDOQueryBuilder
         $this->connection->prepare($query)->execute(array_values($data));
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    public function where(string $column, string $value)
+    {
+        $this->conditions[] = "{$column}=?";
+
+        $this->conditionValues[] = $value;
+
+        return $this;
+    }
+
+    public function update(array $data)
+    {
+        $fields = [];
+
+        foreach ($data as $column => $value) {
+            $fields[] = "{$column}='{$value}'";
+        }
+
+        $fields = implode(",", $fields);
+
+        $conditions = implode(" AND ", $this->conditions);
+
+        $query = "UPDATE {$this->table} SET {$fields} WHERE {$conditions}";
+
+        $query = $this->connection->prepare($query);
+        
+        $query->execute($this->conditionValues);
+
+        return $query->rowCount();
     }
 }
