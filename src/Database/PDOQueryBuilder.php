@@ -49,6 +49,19 @@ class PDOQueryBuilder
         return $this;
     }
 
+    public function get()
+    {
+        $conditions = implode(" AND ", $this->conditions);
+
+        $query = "SELECT * FROM `{$this->table}` WHERE {$conditions}";
+
+        $stmt = $this->connection->prepare($query);
+
+        $stmt->execute($this->conditionValues);
+
+        return $stmt->fetchAll();
+    }
+
     public function update(array $data)
     {
         $fields = [];

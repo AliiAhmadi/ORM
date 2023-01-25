@@ -78,4 +78,24 @@ class PDOQueryBuilderTest extends TestCase
 
         $this->assertEquals(1, $result);
     }
+
+    public function testItCanFetchData()
+    {
+        $data = [
+            "full_name" => "reza",
+            "email" => "reza@gmail.com",
+            "github_profile" => "https://github/rerereza"
+        ];
+
+        $this->queryBuilder->table("users")->create($data);
+
+        $result = $this->queryBuilder
+            ->table("users")
+            ->where("id", "1")
+            ->get();
+
+        $this->assertIsArray($result);
+
+        $this->assertGreaterThanOrEqual(0, count($result));
+    }
 }
