@@ -64,9 +64,33 @@ class PDOQueryBuilder
         $query = "UPDATE {$this->table} SET {$fields} WHERE {$conditions}";
 
         $query = $this->connection->prepare($query);
-        
+
         $query->execute($this->conditionValues);
 
         return $query->rowCount();
+    }
+
+    public function truncateAllTables(): void
+    {
+        $query = $this->connection->prepare("SHOW TABLES");
+
+        $query->execute();
+
+        foreach ($query->fetchAll(\PDO::FETCH_COLUMN) as $table) {
+            $this->connection->prepare("TRUNCATE TABLE `{$table}`")->execute();
+        }
+    }
+
+    public function delete(): int
+    {
+        $conditions = implode(" AND ", $this->conditions);
+
+        $query = "DELETE FROM `{$this->table}` WHERE {$conditions}";
+
+        $stmt = $this->connection->prepare($query);
+
+        $stmt->execute($this->conditionValues);
+
+        return $stmt->rowCount();
     }
 }

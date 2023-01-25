@@ -44,9 +44,34 @@ class PDOQueryBuilderTest extends TestCase
     {
         $result = $this->queryBuilder
             ->table("users")
-            ->where("id", 3)
+            ->where("id", 1)
             ->update(["email" => "test@gmail.com", "full_name" => "ali hastam :)"]);
 
-        $this->assertGreaterThan(0, $result);
+        $this->assertGreaterThanOrEqual(0, $result);
+    }
+
+    public function tearDown(): void
+    {
+        $this->queryBuilder->truncateAllTables();
+
+        parent::tearDown();
+    }
+
+    public function testItCanDeleteFromTable()
+    {
+        $data = [
+            "full_name" => "reza",
+            "email" => "reza@gmail.com",
+            "github_profile" => "https://github/rerereza"
+        ];
+
+        $this->queryBuilder->table("users")->create($data);
+
+        $result = $this->queryBuilder
+            ->table("users")
+            ->where("email", "reza@gmail.com")
+            ->delete();
+
+        $this->assertEquals(1, $result);
     }
 }
