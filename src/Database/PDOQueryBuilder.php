@@ -93,4 +93,14 @@ class PDOQueryBuilder
 
         return $stmt->rowCount();
     }
+
+    public function beginTransaction(): void
+    {
+        $this->connection->beginTransaction();
+    }
+
+    public function rollback(): void
+    {
+        $this->connection->rollBack();
+    }
 }
